@@ -1,8 +1,18 @@
 from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import Optional
 
 app = FastAPI(title="Simple REST API Simulation")
+
+# CORS Configuration - Allow frontend to communicate with backend
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Allows all origins - for development only!
+    allow_credentials=True,
+    allow_methods=["*"],  # Allows all methods (GET, POST, PUT, DELETE, etc.)
+    allow_headers=["*"],  # Allows all headers
+)
 
 # In-memory database simulation
 items_db = {}
@@ -15,11 +25,17 @@ class Item(BaseModel):
     price: float
     quantity: int = 0
 
+    class Config:
+        extra = "allow"  # Allow custom fields from the UI
+
 class ItemUpdate(BaseModel):
     name: Optional[str] = None
     description: Optional[str] = None
     price: Optional[float] = None
     quantity: Optional[int] = None
+
+    class Config:
+        extra = "allow"  # Allow custom fields during updates
 
 @app.get("/")
 def read_root():
